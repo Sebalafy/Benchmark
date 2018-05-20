@@ -614,6 +614,13 @@ public final class Client {
   private static final String CLIENT_CLEANUP_SPAN = "Client#cleanup";
   private static final String CLIENT_EXPORT_MEASUREMENTS_SPAN = "Client#export_measurements";
 
+  /**
+   * (YYB) 
+   * Add new parameters:
+   * -F TPC_DS : create tables and feed data according to TPC-DS specification
+   * 
+   */
+
   public static void usageMessage() {
     System.out.println("Usage: java com.yahoo.ycsb.Client [options]");
     System.out.println("Options:");
@@ -625,6 +632,7 @@ public final class Client {
     System.out.println("  -t:  run the transactions phase of the workload (default)");
     System.out.println("  -db dbname: specify the name of the DB to use (default: com.yahoo.ycsb.BasicDB) - \n" +
         "        can also be specified as the \"db\" property using -p");
+    System.out.println("  -F: create tables and feed data according to fields of workload (TPC_DS)");
     System.out.println("  -P propertyfile: load properties from the given file. Multiple files can");
     System.out.println("           be specified, and will be processed in the order specified");
     System.out.println("  -p name=value:  specify a property to be passed to the DB and workloads;");
@@ -642,6 +650,8 @@ public final class Client {
     System.out.println("use the \"insertcount\" and \"insertstart\" properties to divide up the records " +
         "to be inserted");
   }
+
+
 
   public static boolean checkRequiredProperties(Properties props) {
     if (props.getProperty(WORKLOAD_PROPERTY) == null) {
@@ -860,10 +870,14 @@ public final class Client {
       if (dotransactions) {
         opcount = Integer.parseInt(props.getProperty(OPERATION_COUNT_PROPERTY, "0"));
       } else {
-        if (props.containsKey(INSERT_COUNT_PROPERTY)) {
-          opcount = Integer.parseInt(props.getProperty(INSERT_COUNT_PROPERTY, "0"));
+        if (props.getProperty(WORKLOAD_FIELD_PROPERTY).compareTo("GENERAL") == 0) {
+          if (props.containsKey(INSERT_COUNT_PROPERTY)) {
+           opcount = Integer.parseInt(props.getProperty(INSERT_COUNT_PROPERTY, "0"));
+          } else {
+            opcount = Integer.parseInt(props.getProperty(RECORD_COUNT_PROPERTY, DEFAULT_RECORD_COUNT));
+          }
         } else {
-          opcount = Integer.parseInt(props.getProperty(RECORD_COUNT_PROPERTY, DEFAULT_RECORD_COUNT));
+          opcount = 24; //(YYB) 24 tables, 6 threads
         }
       }
 
@@ -971,6 +985,7 @@ public final class Client {
     return null;
   }
 
+
   private static Properties parseArguments(String[] args) {
     Properties props = new Properties();
     System.err.print("Command line:");
@@ -997,6 +1012,29 @@ public final class Client {
         }
         int tcount = Integer.parseInt(args[argindex]);
         props.setProperty(THREAD_COUNT_PROPERTY, String.valueOf(tcount));
+        argindex++;
+      } else if (args[argindex].compareTo("-F") == 0) {
+        argindex++;
+        if (argindex >= args.length) {
+          usageMessage();
+          System.out.println("Missing argument value for -F.");
+          System.exit(0);
+        }
+        //(YYB) Add new parameter about fields of workload
+        if (args[argindex].compareTo("TPC_DS") == 0) {
+          props.setProperty(WORKLOAD_PROPERTY,"TPCWorkload");
+          props.setProperty(THREAD_COUNT_PROPERTY, "6"); //(YYB) 24 tables, 6 threads
+        }
+        argindex++;
+      } else if (args[argindex].compareTo("-SCALE") == 0){
+        argindex++;
+        if (argindex >= args.length) {
+          usageMessage();
+          System.out.println("Missing argument value for -SCALE.");
+          System.exit(0);
+        }
+        int dataScale = Integer.parseInt(args[argindex]);
+        props.setProperty(DATA_SCALE_PROPERTY,dataScale);
         argindex++;
       } else if (args[argindex].compareTo("-target") == 0) {
         argindex++;
