@@ -308,10 +308,10 @@ public class CoreWorkload extends Workload {
   public static final String INSERTION_RETRY_INTERVAL_DEFAULT = "3";
 
   /**
-   * (YYB) Fields of workload
+   * (YYB) Fields of workload.
    */
   public static final String WORKLOAD_FIELD_PROPERTY = "TPC-DS";
-  public static final String WORKLOAD_FIELD_PROPERTY_DEFAULT = "GENERAL"
+  public static final String WORKLOAD_FIELD_PROPERTY_DEFAULT = "GENERAL";
 
   protected NumberGenerator keysequence;
   protected DiscreteGenerator operationchooser;

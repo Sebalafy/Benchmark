@@ -1,0 +1,3 @@
+com/yahoo/ycsb/db/elasticsearch5/ElasticsearchRestClientIT.class
+com/yahoo/ycsb/db/elasticsearch5/ElasticsearchClientIT.class
+com/yahoo/ycsb/db/elasticsearch5/ElasticsearchIntegTestBase.class

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<checkstyle version="6.2">
+<file name="/home/sebalafy/benchmark/Benchmark/infinispan/src/main/java/com/yahoo/ycsb/db/package-info.java">
+</file>
+<file name="/home/sebalafy/benchmark/Benchmark/infinispan/src/main/java/com/yahoo/ycsb/db/InfinispanRemoteClient.java">
+</file>
+<file name="/home/sebalafy/benchmark/Benchmark/infinispan/src/main/java/com/yahoo/ycsb/db/RemoteCacheManagerHolder.java">
+</file>
+<file name="/home/sebalafy/benchmark/Benchmark/infinispan/src/main/java/com/yahoo/ycsb/db/InfinispanClient.java">
+</file>
+</checkstyle>

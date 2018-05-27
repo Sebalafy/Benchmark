@@ -25,6 +25,7 @@ import java.sql.Statement;
 import java.util.Enumeration;
 import java.util.Properties;
 import java.util.HashMap;
+import java.util.Map.Entry;
 
 /**
  * Utility class to create the table to be used by the benchmark.
@@ -52,7 +53,6 @@ public final class JdbcDBCreateTable {
     String url = props.getProperty(JdbcDBClient.CONNECTION_URL);
     int fieldcount = Integer.parseInt(props.getProperty(JdbcDBClient.FIELD_COUNT_PROPERTY,
         JdbcDBClient.FIELD_COUNT_PROPERTY_DEFAULT));
-
     if (driver == null || username == null || url == null) {
       throw new SQLException("Missing connection information.");
     }
@@ -60,11 +60,11 @@ public final class JdbcDBCreateTable {
     Connection conn = null;
 
     try {
+      System.out.println(driver);
       Class.forName(driver);
-
       conn = DriverManager.getConnection(url, username, password);
       Statement stmt = conn.createStatement();
-
+     
       StringBuilder sql = new StringBuilder("DROP TABLE IF EXISTS ");
       sql.append(tablename);
       sql.append(";");
@@ -103,476 +103,58 @@ public final class JdbcDBCreateTable {
     String url = props.getProperty(JdbcDBClient.CONNECTION_URL);
     int fieldcount = Integer.parseInt(props.getProperty(JdbcDBClient.FIELD_COUNT_PROPERTY,
         JdbcDBClient.FIELD_COUNT_PROPERTY_DEFAULT));
-    HashMap<String,String> tableAndField = new HashMap<String,String>();
-    tableAndField.put("call_center", "("+
-    " cc_call_center_id         char(16)          PRIMARY KEY ,"+
-    " cc_rec_start_date         date                          ,"+
-    " cc_rec_end_date           date                          ,"+
-    " cc_closed_date_sk         integer                       ,"+
-    " cc_open_date_sk           integer                       ,"+
-    " cc_name                   varchar(50)                   ,"+
-    " cc_class                  varchar(50)                   ,"+
-    " cc_employees              integer                       ,"+
-    " cc_sq_ft                  integer                       ,"+
-    " cc_hours                  char(20)                      ,"+
-    " cc_manager                varchar(40)                   ,"+
-    " cc_mkt_id                 integer                       ,"+
-    " cc_mkt_class              char(50)                      ,"+
-    " cc_mkt_desc               varchar(100)                  ,"+
-    " cc_market_manager         varchar(40)                   ,"+
-    " cc_division               integer                       ,"+
-    " cc_division_name          varchar(50)                   ,"+
-    " cc_company                integer                       ,"+
-    " cc_company_name           char(50)                      ,"+
-    " cc_street_number          char(10)                      ,"+
-    " cc_street_name            varchar(60)                   ,"+
-    " cc_street_type            char(15)                      ,"+
-    " cc_suite_number           char(10)                      ,"+
-    " cc_city                   varchar(60)                   ,"+
-    " cc_county                 varchar(30)                   ,"+
-    " cc_state                  char(2)                       ,"+
-    " cc_zip                    char(10)                      ,"+
-    " cc_country                varchar(20)                   ,"+
-    " cc_gmt_offset             decimal(5,2)                  ,"+
-    " cc_tax_percentage         decimal(5,2)                  )");
+    HashMap<String, String> tableAndField = new HashMap<String, String>();
+    tableAndField.put("call_center", "(cc_call_center_sk varchar(255), cc_call_center_id text, cc_rec_start_date text, cc_rec_end_date text,  cc_closed_date_sk text, cc_open_date_sk text, cc_name text, cc_class text, cc_employees text, cc_sq_ft text,  cc_hours text , cc_manager text, cc_mkt_id text , cc_mkt_class text, cc_mkt_desc  text, cc_market_manager  text, cc_division text, cc_division_name text, cc_company text, cc_company_name text, cc_street_number  text, cc_street_name text, cc_street_type text, cc_suite_number text, cc_city text, cc_county text, cc_state text, cc_zip text, cc_country text, cc_gmt_offset text, cc_tax_percentage text, PRIMARY KEY(cc_call_center_sk))");
 
-    tableAndField.put("household_demographics","("+
-    " hd_demo_sk                integer          PRIMARY KEY  ,"+
-    " hd_income_band_sk         integer                       ,"+
-    " hd_buy_potential          char(15)                      ,"+
-    " hd_dep_count              integer                       ,"+
-    " hd_vehicle_count          integer                       )");
+    tableAndField.put("household_demographics", "(hd_demo_sk varchar(255), hd_income_band_sk text, hd_buy_potential text,  hd_dep_count text, hd_vehicle_count text, PRIMARY KEY(hd_demo_sk))");
 
-    tableAndField.put("store_sales","("+
-    " ss_sold_date_sk           integer                       ,"+
-    " ss_sold_time_sk           integer                       ,"+
-    " ss_item_sk                integer          PRIMARY KEY  ,"+
-    " ss_customer_sk            integer                       ,"+
-    " ss_cdemo_sk               integer                       ,"+
-    " ss_hdemo_sk               integer                       ,"+
-    " ss_addr_sk                integer                       ,"+
-    " ss_store_sk               integer                       ,"+
-    " ss_promo_sk               integer                       ,"+
-    " ss_ticket_number          integer        PRIMARY KEY    ,"+
-    " ss_quantity               integer                       ,"+
-    " ss_wholesale_cost         decimal(7,2)                  ,"+
-    " ss_list_price             decimal(7,2)                  ,"+
-    " ss_sales_price            decimal(7,2)                  ,"+
-    " ss_ext_discount_amt       decimal(7,2)                  ,"+
-    " ss_ext_sales_price        decimal(7,2)                  ,"+
-    " ss_ext_wholesale_cost     decimal(7,2)                  ,"+
-    " ss_ext_list_price         decimal(7,2)                  ,"+
-    " ss_ext_tax                decimal(7,2)                  ,"+
-    " ss_coupon_amt             decimal(7,2)                  ,"+
-    " ss_net_paid               decimal(7,2)                  ,"+
-    " ss_net_paid_inc_tax       decimal(7,2)                  ,"+
-    " ss_net_profit             decimal(7,2)                  )");
-
-    tableAndField.put("catalog_page","("+
-    " cp_catalog_page_sk        integer           PRIMARY KEY ,"+
-    " cp_catalog_page_id        char(16)                      ,"+
-    " cp_start_date_sk          integer                       ,"+
-    " cp_end_date_sk            integer                       ,"+
-    " cp_department             varchar(50)                   ,"+
-    " cp_catalog_number         integer                       ,"+
-    " cp_catalog_page_number    integer                       ,"+
-    " cp_description            varchar(100)                  ,"+
-    " cp_type                   varchar(100)                  )");
-
-    tableAndField.put("income_band","("+
-    " ib_income_band_sk         integer           PRIMARY KEY ,"+
-    " ib_lower_bound            integer                       ,"+
-    " ib_upper_bound            integer                       )");
+    tableAndField.put("store_sales", "(ss_sold_date_sk text, ss_sold_time_sk text, ss_item_sk varchar(255), ss_customer_sk text, ss_cdemo_sk text, ss_hdemo_sk text, ss_addr_sk text, ss_store_sk text, ss_promo_sk text, ss_ticket_number varchar(255), ss_quantity text, ss_wholesale_cost text, ss_list_price text, ss_sales_price text, ss_ext_discount_amt text, ss_ext_sales_price text, ss_ext_wholesale_cost text, ss_ext_list_price text, ss_ext_tax text, ss_coupon_amt text, ss_net_paid text, ss_net_paid_inc_tax text, ss_net_profit text, PRIMARY KEY(ss_item_sk, ss_ticket_number))");
 
 
-    tableAndField.put("time_dim","("+
-    " t_time_sk                 integer          PRIMARY KEY  ,"+
-    " t_time_id                 char(16)                      ,"+
-    " t_time                    integer                       ,"+
-    " t_hour                    integer                       ,"+
-    " t_minute                  integer                       ,"+
-    " t_second                  integer                       ,"+
-    " t_am_pm                   char(2)                       ,"+
-    " t_shift                   char(20)                      ,"+
-    " t_sub_shift               char(20)                      ,"+
-    " t_meal_time               char(20)                      )");
+    tableAndField.put("catalog_page", "(cp_catalog_page_sk varchar(255), cp_catalog_page_id text, cp_start_date_sk  text, cp_end_date_sk text, cp_department text, cp_catalog_number text, cp_catalog_page_number text, cp_description  text, cp_type text, PRIMARY KEY(cp_catalog_page_sk))");
 
-    tableAndField.put("catalog_returns","("+
-    " cr_returned_date_sk       integer                       ,"+
-    " cr_returned_time_sk       integer                       ,"+
-    " cr_item_sk                integer        PRIMARY KEY    ,"+
-    " cr_refunded_customer_sk   integer                       ,"+
-    " cr_refunded_cdemo_sk      integer                       ,"+
-    " cr_refunded_hdemo_sk      integer                       ,"+
-    " cr_refunded_addr_sk       integer                       ,"+
-    " cr_returning_customer_sk  integer                       ,"+
-    " cr_returning_cdemo_sk     integer                       ,"+
-    " cr_returning_hdemo_sk     integer                       ,"+
-    " cr_returning_addr_sk      integer                       ,"+
-    " cr_call_center_sk         integer                       ,"+
-    " cr_catalog_page_sk        integer                       ,"+
-    " cr_ship_mode_sk           integer                       ,"+
-    " cr_warehouse_sk           integer                       ,"+
-    " cr_reason_sk              integer                       ,"+
-    " cr_order_number           integer         PRIMARY KEY   ,"+
-    " cr_return_quantity        integer                       ,"+
-    " cr_return_amount          decimal(7,2)                  ,"+
-    " cr_return_tax             decimal(7,2)                  ,"+
-    " cr_return_amt_inc_tax     decimal(7,2)                  ,"+
-    " cr_fee                    decimal(7,2)                  ,"+
-    " cr_return_ship_cost       decimal(7,2)                  ,"+
-    " cr_refunded_cash          decimal(7,2)                  ,"+
-    " cr_reversed_charge        decimal(7,2)                  ,"+
-    " cr_store_credit           decimal(7,2)                  ,"+
-    " cr_net_loss               decimal(7,2)                  )");
-
-    tableAndField.put("inventory","("+
-    " inv_date_sk               integer           PRIMARY KEY ,"+
-    " inv_item_sk               integer           PRIMARY KEY ,"+
-    " inv_warehouse_sk          integer           PRIMARY KEY ,"+
-    " inv_quantity_on_hand      integer                       )");
+    tableAndField.put("income_band", "(ib_income_band_sk varchar(255), ib_lower_bound text, ib_upper_bound text, PRIMARY KEY(ib_income_band_sk))");
 
 
-    tableAndField.put("warehouse","("+
-    " w_warehouse_sk            integer          PRIMARY KEY  ,"+
-    " w_warehouse_id            char(16)                      ,"+
-    " w_warehouse_name          varchar(20)                   ,"+
-    " w_warehouse_sq_ft         integer                       ,"+
-    " w_street_number           char(10)                      ,"+
-    " w_street_name             varchar(60)                   ,"+
-    " w_street_type             char(15)                      ,"+
-    " w_suite_number            char(10)                      ,"+
-    " w_city                    varchar(60)                   ,"+
-    " w_county                  varchar(30)                   ,"+
-    " w_state                   char(2)                       ,"+
-    " w_zip                     char(10)                      ,"+
-    " w_country                 varchar(20)                   ,"+
-    " w_gmt_offset              decimal(5,2)                  )");
+    tableAndField.put("time_dim", "(t_time_sk varchar(255), t_time_id text, t_time text, t_hour text, t_minute text, t_second text, t_am_pm text, t_shift text, t_sub_shift text, t_meal_time text, PRIMARY KEY(t_time_sk))");
 
-    tableAndField.put("catalog_sales","("+
-    " cs_sold_date_sk           integer                       ,"+
-    " cs_sold_time_sk           integer                       ,"+
-    " cs_ship_date_sk           integer                       ,"+
-    " cs_bill_customer_sk       integer                       ,"+
-    " cs_bill_cdemo_sk          integer                       ,"+
-    " cs_bill_hdemo_sk          integer                       ,"+
-    " cs_bill_addr_sk           integer                       ,"+
-    " cs_ship_customer_sk       integer                       ,"+
-    " cs_ship_cdemo_sk          integer                       ,"+
-    " cs_ship_hdemo_sk          integer                       ,"+
-    " cs_ship_addr_sk           integer                       ,"+
-    " cs_call_center_sk         integer                       ,"+
-    " cs_catalog_page_sk        integer                       ,"+
-    " cs_ship_mode_sk           integer                       ,"+
-    " cs_warehouse_sk           integer                       ,"+
-    " cs_item_sk                integer         PRIMARY KEY   ,"+
-    " cs_promo_sk               integer                       ,"+
-    " cs_order_number           integer         PRIMARY KEY   ,"+
-    " cs_quantity               integer                       ,"+
-    " cs_wholesale_cost         decimal(7,2)                  ,"+
-    " cs_list_price             decimal(7,2)                  ,"+
-    " cs_sales_price            decimal(7,2)                  ,"+
-    " cs_ext_discount_amt       decimal(7,2)                  ,"+
-    " cs_ext_sales_price        decimal(7,2)                  ,"+
-    " cs_ext_wholesale_cost     decimal(7,2)                  ,"+
-    " cs_ext_list_price         decimal(7,2)                  ,"+
-    " cs_ext_tax                decimal(7,2)                  ,"+
-    " cs_coupon_amt             decimal(7,2)                  ,"+
-    " cs_ext_ship_cost          decimal(7,2)                  ,"+
-    " cs_net_paid               decimal(7,2)                  ,"+
-    " cs_net_paid_inc_tax       decimal(7,2)                  ,"+
-    " cs_net_paid_inc_ship      decimal(7,2)                  ,"+
-    " cs_net_paid_inc_ship_tax  decimal(7,2)                  ,"+
-    " cs_net_profit             decimal(7,2)                  )");
+    tableAndField.put("catalog_returns", "(cr_returned_date_sk text, cr_returned_time_sk text, cr_item_sk varchar(255), cr_refunded_customer_sk text, cr_refunded_cdemo_sk text, cr_refunded_hdemo_sk text, cr_refunded_addr_sk text, cr_returning_customer_sk text, cr_returning_cdemo_sk text, cr_returning_hdemo_sk text, cr_returning_addr_sk text, cr_call_center_sk text, cr_catalog_page_sk text, cr_ship_mode_sk text, cr_warehouse_sk text, cr_reason_sk text, cr_order_number varchar(255), cr_return_quantity text, cr_return_amount text, cr_return_tax text, cr_return_amt_inc_tax text, cr_fee text, cr_return_ship_cost text, cr_refunded_cash text, cr_reversed_charge text, cr_store_credit text, cr_net_loss text, PRIMARY KEY(cr_item_sk, cr_order_number))");
 
-    tableAndField.put("item","("+
-    " i_item_sk                 integer         PRIMARY KEY   ,"+
-    " i_item_id                 char(16)                      ,"+
-    " i_rec_start_date          date                          ,"+
-    " i_rec_end_date            date                          ,"+
-    " i_item_desc               varchar(200)                  ,"+
-    " i_current_price           decimal(7,2)                  ,"+
-    " i_wholesale_cost          decimal(7,2)                  ,"+
-    " i_brand_id                integer                       ,"+
-    " i_brand                   char(50)                      ,"+
-    " i_class_id                integer                       ,"+
-    " i_class                   char(50)                      ,"+
-    " i_category_id             integer                       ,"+
-    " i_category                char(50)                      ,"+
-    " i_manufact_id             integer                       ,"+
-    " i_manufact                char(50)                      ,"+
-    " i_size                    char(20)                      ,"+
-    " i_formulation             char(20)                      ,"+
-    " i_color                   char(20)                      ,"+
-    " i_units                   char(10)                      ,"+
-    " i_container               char(10)                      ,"+
-    " i_manager_id              integer                       ,"+
-    " i_product_name            char(50)                      +");
-
-    tableAndField.put("web_page","("+
-    " wp_web_page_sk            integer       PRIMARY KEY     ,"+
-    " wp_web_page_id            char(16)                      ,"+
-    " wp_rec_start_date         date                          ,"+
-    " wp_rec_end_date           date                          ,"+
-    " wp_creation_date_sk       integer                       ,"+
-    " wp_access_date_sk         integer                       ,"+
-    " wp_autogen_flag           char(1)                       ,"+
-    " wp_customer_sk            integer                       ,"+
-    " wp_url                    varchar(100)                  ,"+
-    " wp_type                   char(50)                      ,"+
-    " wp_char_count             integer                       ,"+
-    " wp_link_count             integer                       ,"+
-    " wp_image_count            integer                       )");
-
-    tableAndField.put("customer_address","("+
-    " ca_address_sk             integer         PRIMARY KEY   ,"+
-    " ca_address_id             char(16)                      ,"+
-    " ca_street_number          char(10)                      ,"+
-    " ca_street_name            varchar(60)                   ,"+
-    " ca_street_type            char(15)                      ,"+
-    " ca_suite_number           char(10)                      ,"+
-    " ca_city                   varchar(60)                   ,"+
-    " ca_county                 varchar(30)                   ,"+
-    " ca_state                  char(2)                       ,"+
-    " ca_zip                    char(10)                      ,"+
-    " ca_country                varchar(20)                   ,"+
-    " ca_gmt_offset             decimal(5,2)                  ,"+
-    " ca_location_type          char(20)                      )");
-
-    tableAndField.put("promotion","("+
-    " p_promo_sk                integer          PRIMARY KEY  ,"+
-    " p_promo_id                char(16)                      ,"+
-    " p_start_date_sk           integer                       ,"+
-    " p_end_date_sk             integer                       ,"+
-    " p_item_sk                 integer                       ,"+
-    " p_cost                    decimal(15,2)                 ,"+
-    " p_response_target         integer                       ,"+
-    " p_promo_name              char(50)                      ,"+
-    " p_channel_dmail           char(1)                       ,"+
-    " p_channel_email           char(1)                       ,"+
-    " p_channel_catalog         char(1)                       ,"+
-    " p_channel_tv              char(1)                       ,"+
-    " p_channel_radio           char(1)                       ,"+
-    " p_channel_press           char(1)                       ,"+
-    " p_channel_event           char(1)                       ,"+
-    " p_channel_demo            char(1)                       ,"+
-    " p_channel_details         varchar(100)                  ,"+
-    " p_purpose                 char(15)                      ,"+
-    " p_discount_active         char(1)                       )");
-
-    tableAndField.put("web_returns","("+
-    " wr_returned_date_sk       integer                       ,"+
-    " wr_returned_time_sk       integer                       ,"+
-    " wr_item_sk                integer          PRIMARY KEY  ,"+
-    " wr_refunded_customer_sk   integer                       ,"+
-    " wr_refunded_cdemo_sk      integer                       ,"+
-    " wr_refunded_hdemo_sk      integer                       ,"+
-    " wr_refunded_addr_sk       integer                       ,"+
-    " wr_returning_customer_sk  integer                       ,"+
-    " wr_returning_cdemo_sk     integer                       ,"+
-    " wr_returning_hdemo_sk     integer                       ,"+
-    " wr_returning_addr_sk      integer                       ,"+
-    " wr_web_page_sk            integer                       ,"+
-    " wr_reason_sk              integer                       ,"+
-    " wr_order_number           integer           PRIMARY KEY ,"+
-    " wr_return_quantity        integer                       ,"+
-    " wr_return_amt             decimal(7,2)                  ,"+
-    " wr_return_tax             decimal(7,2)                  ,"+
-    " wr_return_amt_inc_tax     decimal(7,2)                  ,"+
-    " wr_fee                    decimal(7,2)                  ,"+
-    " wr_return_ship_cost       decimal(7,2)                  ,"+
-    " wr_refunded_cash          decimal(7,2)                  ,"+
-    " wr_reversed_charge        decimal(7,2)                  ,"+
-    " wr_account_credit         decimal(7,2)                  ,"+
-    " wr_net_loss               decimal(7,2)                  )");
-
-    tableAndField.put("customer","("+
-    " ca_address_sk             integer           PRIMARY KEY ,"+
-    " ca_address_id             char(16)                      ,"+
-    " ca_street_number          char(10)                      ,"+
-    " ca_street_name            varchar(60)                   ,"+
-    " ca_street_type            char(15)                      ,"+
-    " ca_suite_number           char(10)                      ,"+
-    " ca_city                   varchar(60)                   ,"+
-    " ca_county                 varchar(30)                   ,"+
-    " ca_state                  char(2)                       ,"+
-    " ca_zip                    char(10)                      ,"+
-    " ca_country                varchar(20)                   ,"+
-    " ca_gmt_offset             decimal(5,2)                  ,"+
-    " ca_location_type          char(20)                      )");
+    tableAndField.put("inventory", "(inv_date_sk varchar(255), inv_item_sk varchar(255), inv_warehouse_sk varchar(255), inv_quantity_on_hand text, PRIMARY KEY(inv_date_sk, inv_item_sk, inv_warehouse_sk))");
 
 
-    tableAndField.put("reason","("+
-    " r_reason_sk               integer           PRIMARY KEY ,"+
-    " r_reason_id               char(16)                      ,"+
-    " r_reason_desc             char(100)                     )");
+    tableAndField.put("warehouse", "(w_warehouse_sk varchar(255), w_warehouse_id text, w_warehouse_name text, w_warehouse_sq_ft text, w_street_number text, w_street_name text, w_street_type text, w_suite_number text, w_city text, w_county text, w_state text, w_zip text, w_country text, w_gmt_offset text, PRIMARY KEY(w_warehouse_sk))");
 
-    tableAndField.put("web_sales","("+
-    " ws_sold_date_sk           integer                       ,"+
-    " ws_sold_time_sk           integer                       ,"+
-    " ws_ship_date_sk           integer                       ,"+
-    " ws_item_sk                integer         PRIMARY KEY   ,"+
-    " ws_bill_customer_sk       integer                       ,"+
-    " ws_bill_cdemo_sk          integer                       ,"+
-    " ws_bill_hdemo_sk          integer                       ,"+
-    " ws_bill_addr_sk           integer                       ,"+
-    " ws_ship_customer_sk       integer                       ,"+
-    " ws_ship_cdemo_sk          integer                       ,"+
-    " ws_ship_hdemo_sk          integer                       ,"+
-    " ws_ship_addr_sk           integer                       ,"+
-    " ws_web_page_sk            integer                       ,"+
-    " ws_web_site_sk            integer                       ,"+
-    " ws_ship_mode_sk           integer                       ,"+
-    " ws_warehouse_sk           integer                       ,"+
-    " ws_promo_sk               integer                       ,"+
-    " ws_order_number           integer         PRIMARY KEY   ,"+
-    " ws_quantity               integer                       ,"+
-    " ws_wholesale_cost         decimal(7,2)                  ,"+
-    " ws_list_price             decimal(7,2)                  ,"+
-    " ws_sales_price            decimal(7,2)                  ,"+
-    " ws_ext_discount_amt       decimal(7,2)                  ,"+
-    " ws_ext_sales_price        decimal(7,2)                  ,"+
-    " ws_ext_wholesale_cost     decimal(7,2)                  ,"+
-    " ws_ext_list_price         decimal(7,2)                  ,"+
-    " ws_ext_tax                decimal(7,2)                  ,"+
-    " ws_coupon_amt             decimal(7,2)                  ,"+
-    " ws_ext_ship_cost          decimal(7,2)                  ,"+
-    " ws_net_paid               decimal(7,2)                  ,"+
-    " ws_net_paid_inc_tax       decimal(7,2)                  ,"+
-    " ws_net_paid_inc_ship      decimal(7,2)                  ,"+
-    " ws_net_paid_inc_ship_tax  decimal(7,2)                  ,"+
-    " ws_net_profit             decimal(7,2)                  )");
+    tableAndField.put("catalog_sales", "(cs_sold_date_sk text, cs_sold_time_sk text, cs_ship_date_sk text, cs_bill_customer_sk text, cs_bill_cdemo_sk text, cs_bill_hdemo_sk text, cs_bill_addr_sk text, cs_ship_customer_sk text, cs_ship_cdemo_sk text, cs_ship_hdemo_sk text, cs_ship_addr_sk text, cs_call_center_sk text, cs_catalog_page_sk text, cs_ship_mode_sk text, cs_warehouse_sk text, cs_item_sk varchar(255), cs_promo_sk text, cs_order_number varchar(255), cs_quantity text, cs_wholesale_cost text, cs_list_price text, cs_sales_price text, cs_ext_discount_amt text, cs_ext_sales_price text, cs_ext_wholesale_cost text, cs_ext_list_price text, cs_ext_tax text, cs_coupon_amt text, cs_ext_ship_cost text, cs_net_paid text, cs_net_paid_inc_tax text, cs_net_paid_inc_ship text, cs_net_paid_inc_ship_tax text, cs_net_profit text, PRIMARY KEY(cs_item_sk, cs_order_number))");
 
-    tableAndField.put("customer_demographics","("+
-    " cd_demo_sk                integer          PRIMARY KEY  ,"+
-    " cd_gender                 char(1)                       ,"+
-    " cd_marital_status         char(1)                       ,"+
-    " cd_education_status       char(20)                      ,"+
-    " cd_purchase_estimate      integer                       ,"+
-    " cd_credit_rating          char(10)                      ,"+
-    " cd_dep_count              integer                       ,"+
-    " cd_dep_employed_count     integer                       ,"+
-    " cd_dep_college_count      integer                       )");
+    tableAndField.put("item", "(i_item_sk varchar(255), i_item_id text, i_rec_start_date text, i_rec_end_date text, i_item_desc text, i_current_price text, i_wholesale_cost text, i_brand_id text, i_brand text, i_class_id text, i_class text, i_category_id text, i_category text, i_manufact_id text, i_manufact text, i_size text, i_formulation text, i_color text, i_units text, i_container text, i_manager_id text, i_product_name text, PRIMARY KEY(i_item_sk))");
 
-    tableAndField.put("ship_mode","("+
-    " sm_ship_mode_sk           integer          PRIMARY KEY  ,"+
-    " sm_ship_mode_id           char(16)                      ,"+
-    " sm_type                   char(30)                      ,"+
-    " sm_code                   char(10)                      ,"+
-    " sm_carrier                char(20)                      ,"+
-    " sm_contract               char(20)                      )");
+    tableAndField.put("web_page", "(wp_web_page_sk varchar(255), wp_web_page_id text, wp_rec_start_date text, wp_rec_end_date text, wp_creation_date_sk text, wp_access_date_sk text, wp_autogen_flag text, wp_customer_sk text, wp_url text, wp_type text, wp_char_count text, wp_link_count text, wp_image_count text, wp_max_ad_count text, PRIMARY KEY(wp_web_page_sk))");
 
-    tableAndField.put("web_site","("+
-    " web_site_sk               integer        PRIMARY KEY    ,"+
-    " web_site_id               char(16)                      ,"+
-    " web_rec_start_date        date                          ,"+
-    " web_rec_end_date          date                          ,"+
-    " web_name                  varchar(50)                   ,"+
-    " web_open_date_sk          integer                       ,"+
-    " web_close_date_sk         integer                       ,"+
-    " web_class                 varchar(50)                   ,"+
-    " web_manager               varchar(40)                   ,"+
-    " web_mkt_id                integer                       ,"+
-    " web_mkt_class             varchar(50)                   ,"+
-    " web_mkt_desc              varchar(100)                  ,"+
-    " web_market_manager        varchar(40)                   ,"+
-    " web_company_id            integer                       ,"+
-    " web_company_name          char(50)                      ,"+
-    " web_street_number         char(10)                      ,"+
-    " web_street_name           varchar(60)                   ,"+
-    " web_street_type           char(15)                      ,"+
-    " web_suite_number          char(10)                      ,"+
-    " web_city                  varchar(60)                   ,"+
-    " web_county                varchar(30)                   ,"+
-    " web_state                 char(2)                       ,"+
-    " web_zip                   char(10)                      ,"+
-    " web_country               varchar(20)                   ,"+
-    " web_gmt_offset            decimal(5,2)                  ,"+
-    " web_tax_percentage        decimal(5,2)                  )");
+    tableAndField.put("customer_address", "(ca_address_sk varchar(255), ca_address_id text, ca_street_number text, ca_street_name text, ca_street_type text, ca_suite_number text, ca_city text, ca_county text, ca_state text, ca_zip text, ca_country text, ca_gmt_offset text, ca_location_type text, PRIMARY KEY(ca_address_sk))");
 
-    tableAndField.put("date_dim","("+
-    " d_date_sk                 integer          PRIMARY KEY  ,"+
-    " d_date_id                 char(16)                      ,"+
-    " d_date                    date                          ,"+
-    " d_month_seq               integer                       ,"+
-    " d_week_seq                integer                       ,"+
-    " d_quarter_seq             integer                       ,"+
-    " d_year                    integer                       ,"+
-    " d_dow                     integer                       ,"+
-    " d_moy                     integer                       ,"+
-    " d_dom                     integer                       ,"+
-    " d_qoy                     integer                       ,"+
-    " d_fy_year                 integer                       ,"+
-    " d_fy_quarter_seq          integer                       ,"+
-    " d_fy_week_seq             integer                       ,"+
-    " d_day_name                char(9)                       ,"+
-    " d_quarter_name            char(6)                       ,"+
-    " d_holiday                 char(1)                       ,"+
-    " d_weekend                 char(1)                       ,"+
-    " d_following_holiday       char(1)                       ,"+
-    " d_first_dom               integer                       ,"+
-    " d_last_dom                integer                       ,"+
-    " d_same_day_ly             integer                       ,"+
-    " d_same_day_lq             integer                       ,"+
-    " d_current_day             char(1)                       ,"+
-    " d_current_week            char(1)                       ,"+
-    " d_current_month           char(1)                       ,"+
-    " d_current_quarter         char(1)                       ,"+
-    " d_current_year            char(1)                       )");
+    tableAndField.put("promotion", "(p_promo_sk varchar(255), p_promo_id text, p_start_date_sk text, p_end_date_sk text, p_item_sk text, p_cost text, p_response_target text, p_promo_name text, p_channel_dmail text, p_channel_email text, p_channel_catalog text, p_channel_tv text, p_channel_radio text, p_channel_press text, p_channel_event text, p_channel_demo text, p_channel_details text, p_purpose text, p_discount_active text, PRIMARY KEY(p_promo_sk))");
 
-    tableAndField.put("store","("+
-    " s_store_sk                integer         PRIMARY KEY   ,"+
-    " s_store_id                char(16)                      ,"+
-    " s_rec_start_date          date                          ,"+
-    " s_rec_end_date            date                          ,"+
-    " s_closed_date_sk          integer                       ,"+
-    " s_store_name              varchar(50)                   ,"+
-    " s_number_employees        integer                       ,"+
-    " s_floor_space             integer                       ,"+
-    " s_hours                   char(20)                      ,"+
-    " s_manager                 varchar(40)                   ,"+
-    " s_market_id               integer                       ,"+
-    " s_geography_class         varchar(100)                  ,"+
-    " s_market_desc             varchar(100)                  ,"+
-    " s_market_manager          varchar(40)                   ,"+
-    " s_division_id             integer                       ,"+
-    " s_division_name           varchar(50)                   ,"+
-    " s_company_id              integer                       ,"+
-    " s_company_name            varchar(50)                   ,"+
-    " s_street_number           varchar(10)                   ,"+
-    " s_street_name             varchar(60)                   ,"+
-    " s_street_type             char(15)                      ,"+
-    " s_suite_number            char(10)                      ,"+
-    " s_city                    varchar(60)                   ,"+
-    " s_county                  varchar(30)                   ,"+
-    " s_state                   char(2)                       ,"+
-    " s_zip                     char(10)                      ,"+
-    " s_country                 varchar(20)                   ,"+
-    " s_gmt_offset              decimal(5,2)                  ,"+
-    " s_tax_precentage          decimal(5,2)                  )");
+    tableAndField.put("web_returns", "(wr_returned_date_sk text, wr_returned_time_sk text, wr_item_sk varchar(255), wr_refunded_customer_sk text, wr_refunded_cdemo_sk text, wr_refunded_hdemo_sk text, wr_refunded_addr_sk text, wr_returning_customer_sk text, wr_returning_cdemo_sk text, wr_returning_hdemo_sk text, wr_returning_addr_sk text, wr_web_page_sk text, wr_reason_sk text, wr_order_number varchar(255), wr_return_quantity text, wr_return_amt text, wr_return_tax text, wr_return_amt_inc_tax text, wr_fee text, wr_return_ship_cost text, wr_refunded_cash text, wr_reversed_charge text, wr_account_credit text, wr_net_loss text, PRIMARY KEY(wr_item_sk, wr_order_number))");
 
-    tableAndField.put("store_returns","("+
-    " sr_returned_date_sk       integer                       ,"+
-    " sr_return_time_sk         integer                       ,"+
-    " sr_item_sk                integer           PRIMARY KEY ,"+
-    " sr_customer_sk            integer                       ,"+
-    " sr_cdemo_sk               integer                       ,"+
-    " sr_hdemo_sk               integer                       ,"+
-    " sr_addr_sk                integer                       ,"+
-    " sr_store_sk               integer                       ,"+
-    " sr_reason_sk              integer                       ,"+
-    " sr_ticket_number          integer           PRIMARY KEY ,"+
-    " sr_return_quantity        integer                       ,"+
-    " sr_return_amt             decimal(7,2)                  ,"+
-    " sr_return_tax             decimal(7,2)                  ,"+
-    " sr_return_amt_inc_tax     decimal(7,2)                  ,"+
-    " sr_fee                    decimal(7,2)                  ,"+
-    " sr_return_ship_cost       decimal(7,2)                  ,"+
-    " sr_refunded_cash          decimal(7,2)                  ,"+
-    " sr_reversed_charge        decimal(7,2)                  ,"+
-    " sr_store_credit           decimal(7,2)                  ,"+
-    " sr_net_loss               decimal(7,2)                  )");
+    tableAndField.put("customer", "(c_customer_sk varchar(255), c_customer_id text, c_current_cdemo_sk text, c_current_hdemo_sk text, c_current_addr_sk text, c_first_shipto_date_sk text, c_first_sales_date_sk text, c_salutation text, c_first_name text, c_last_name text, c_preferred_cust_flag text, c_birth_day text, c_birth_month text, c_birth_year text, c_birth_country text, c_login text, c_email_address text, c_last_review_date text, PRIMARY KEY(c_customer_sk))");
 
+
+    tableAndField.put("reason", "(r_reason_sk varchar(255), r_reason_id text, r_reason_desc char(100), PRIMARY KEY(r_reason_sk))");
+
+    tableAndField.put("web_sales", "(ws_sold_date_sk text, ws_sold_time_sk text, ws_ship_date_sk text, ws_item_sk varchar(255), ws_bill_customer_sk text, ws_bill_cdemo_sk text, ws_bill_hdemo_sk text, ws_bill_addr_sk text, ws_ship_customer_sk text, ws_ship_cdemo_sk text, ws_ship_hdemo_sk text, ws_ship_addr_sk text, ws_web_page_sk text, ws_web_site_sk text, ws_ship_mode_sk text, ws_warehouse_sk text, ws_promo_sk text, ws_order_number varchar(255), ws_quantity text, ws_wholesale_cost text, ws_list_price text, ws_sales_price text, ws_ext_discount_amt text, ws_ext_sales_price text, ws_ext_wholesale_cost text, ws_ext_list_price text, ws_ext_tax text, ws_coupon_amt text, ws_ext_ship_cost text, ws_net_paid text, ws_net_paid_inc_tax text, ws_net_paid_inc_ship text, ws_net_paid_inc_ship_tax text, ws_net_profit text, PRIMARY KEY(ws_item_sk, ws_order_number))");
+
+    tableAndField.put("customer_demographics", "(cd_demo_sk varchar(255), cd_gender text, cd_marital_status text, cd_education_status text, cd_purchase_estimate text, cd_credit_rating text, cd_dep_count text, cd_dep_employed_count text, cd_dep_college_count text, PRIMARY KEY(cd_demo_sk))");
+
+    tableAndField.put("ship_mode", "(sm_ship_mode_sk varchar(255), sm_ship_mode_id text, sm_type char(30), sm_code text, sm_carrier text, sm_contract text, PRIMARY KEY(sm_ship_mode_sk))");
+
+    tableAndField.put("web_site", "(web_site_sk varchar(255), web_site_id text, web_rec_start_date text, web_rec_end_date text, web_name text, web_open_date_sk text, web_close_date_sk text, web_class text, web_manager text, web_mkt_id text, web_mkt_class text, web_mkt_desc text, web_market_manager text, web_company_id text, web_company_name text, web_street_number text, web_street_name text, web_street_type text, web_suite_number text, web_city text, web_county text, web_state text, web_zip text, web_country text, web_gmt_offset text, web_tax_percentage text, PRIMARY KEY(web_site_sk))");
+
+    tableAndField.put("date_dim", "(d_date_sk varchar(255), d_date_id text, d_date text, d_month_seq text, d_week_seq text, d_quarter_seq text, d_year text, d_dow text, d_moy text, d_dom text, d_qoy text, d_fy_year text, d_fy_quarter_seq text, d_fy_week_seq text, d_day_name char(9), d_quarter_name char(6), d_holiday text, d_weekend text, d_following_holiday text, d_first_dom text, d_last_dom text, d_same_day_ly text, d_same_day_lq text, d_current_day text, d_current_week text, d_current_month text, d_current_quarter text, d_current_year text, PRIMARY KEY(d_date_sk))");
+
+    tableAndField.put("store", "(s_store_sk varchar(255), s_store_id text, s_rec_start_date text, s_rec_end_date text, s_closed_date_sk text, s_store_name text, s_number_employees text, s_floor_space text, s_hours text, s_manager text, s_market_id text, s_geography_class text, s_market_desc text, s_market_manager text, s_division_id text, s_division_name text, s_company_id text, s_company_name text, s_street_number text, s_street_name text, s_street_type text, s_suite_number text, s_city text, s_county text, s_state text, s_zip text, s_country text, s_gmt_offset text, s_tax_precentage text, PRIMARY KEY(s_store_sk))");
+
+    tableAndField.put("store_returns", "(sr_returned_date_sk text, sr_return_time_sk text, sr_item_sk varchar(255), sr_customer_sk text, sr_cdemo_sk text, sr_hdemo_sk text, sr_addr_sk text, sr_store_sk text, sr_reason_sk text, sr_ticket_number varchar(255), sr_return_quantity text, sr_return_amt text, sr_return_tax text, sr_return_amt_inc_tax text, sr_fee text, sr_return_ship_cost text, sr_refunded_cash text, sr_reversed_charge text, sr_store_credit text, sr_net_loss text, PRIMARY KEY(sr_item_sk, sr_ticket_number))");
 
     if (driver == null || username == null || url == null) {
       throw new SQLException("Missing connection information.");
@@ -582,13 +164,12 @@ public final class JdbcDBCreateTable {
 
     try {
       Class.forName(driver);
-
       conn = DriverManager.getConnection(url, username, password);
       Statement stmt = conn.createStatement();
       String tablename;
       String fields;
       StringBuilder sql;
-       for (Entry<String, String> entry : tableAndField.entrySet()) {
+      for (Entry<String, String> entry : tableAndField.entrySet()) {
         tablename = entry.getKey();
         fields = entry.getValue();
 
@@ -604,7 +185,7 @@ public final class JdbcDBCreateTable {
         sql.append(";");
         stmt.execute(sql.toString());
         System.out.println("Table " + tablename + " created..");
-
+      }
     } catch (ClassNotFoundException e) {
       throw new SQLException("JDBC Driver class not found.");
     } finally {
@@ -659,10 +240,14 @@ public final class JdbcDBCreateTable {
           fileprops.setProperty(prop, myfileprops.getProperty(prop));
         }
       // (YYB)
-      } else if ((args[argindex].compareTo("-F") == 0){ 
+      } else if (args[argindex].compareTo("-F") == 0){ 
         argindex++;
         if (args[argindex].compareTo("TPC_DS") == 0) {
           props.setProperty(TABLE_TYPE_PROPERTY, args[argindex]);
+          tablename = "TPCTable";
+        } else {
+          System.out.println("Invalid value for field of workload. (GENERAL and TPC_DS only)");
+          System.exit(0);
         }
         argindex++;
       } else if (args[argindex].compareTo("-p") == 0) {
@@ -740,7 +325,7 @@ public final class JdbcDBCreateTable {
     }
 
     try {
-      if (props.getProperty(TABLE_TYPE_PROPERTY,TABLE_TYPE_PROPERTY_DEFAULT).equals("TPC_DS")) {
+      if (props.getProperty(TABLE_TYPE_PROPERTY, TABLE_TYPE_PROPERTY_DEFAULT).equals("TPC_DS")) {
         //创建24个表！！！！！
         createTPCTable(props);
       } else {

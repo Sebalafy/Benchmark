@@ -495,7 +495,6 @@ public class JdbcDBClient extends DB {
       fieldValues.add(count, entry.getValue().toString());
       count++;
     }
-
     return new OrderedFieldInfo(fieldKeys, fieldValues);
   }
 }

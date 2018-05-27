@@ -598,6 +598,11 @@ public final class Client {
   public static final String LABEL_PROPERTY = "label";
 
   /**
+   * Set scale of the data in TPC-DS.
+   */
+  public static final String DATA_SCALE_PROPERTY = "1";
+
+  /**
    * An optional thread used to track progress and measure JVM stats.
    */
   private static StatusThread statusthread = null;
@@ -615,9 +620,7 @@ public final class Client {
   private static final String CLIENT_EXPORT_MEASUREMENTS_SPAN = "Client#export_measurements";
 
   /**
-   * (YYB) 
-   * Add new parameters:
-   * -F TPC_DS : create tables and feed data according to TPC-DS specification
+   * (YYB) Add new parameters: -F TPC_DS : create tables and feed data according to TPC-DS specification.
    * 
    */
 
@@ -632,7 +635,7 @@ public final class Client {
     System.out.println("  -t:  run the transactions phase of the workload (default)");
     System.out.println("  -db dbname: specify the name of the DB to use (default: com.yahoo.ycsb.BasicDB) - \n" +
         "        can also be specified as the \"db\" property using -p");
-    System.out.println("  -F: create tables and feed data according to fields of workload (TPC_DS)");
+    System.out.println("  -F: feed data according to fields of workload (TPC_DS)");
     System.out.println("  -P propertyfile: load properties from the given file. Multiple files can");
     System.out.println("           be specified, and will be processed in the order specified");
     System.out.println("  -p name=value:  specify a property to be passed to the DB and workloads;");
@@ -870,9 +873,9 @@ public final class Client {
       if (dotransactions) {
         opcount = Integer.parseInt(props.getProperty(OPERATION_COUNT_PROPERTY, "0"));
       } else {
-        if (props.getProperty(WORKLOAD_FIELD_PROPERTY).compareTo("GENERAL") == 0) {
+        if (props.getProperty(WORKLOAD_PROPERTY).compareTo("workload") == 0) {
           if (props.containsKey(INSERT_COUNT_PROPERTY)) {
-           opcount = Integer.parseInt(props.getProperty(INSERT_COUNT_PROPERTY, "0"));
+            opcount = Integer.parseInt(props.getProperty(INSERT_COUNT_PROPERTY, "0"));
           } else {
             opcount = Integer.parseInt(props.getProperty(RECORD_COUNT_PROPERTY, DEFAULT_RECORD_COUNT));
           }
@@ -882,7 +885,7 @@ public final class Client {
       }
 
       for (int threadid = 0; threadid < threadcount; threadid++) {
-        DB db;
+        DB db; //Indentation
         try {
           db = DBFactory.newDB(dbname, props, tracer);
         } catch (UnknownDBException e) {
@@ -1022,7 +1025,7 @@ public final class Client {
         }
         //(YYB) Add new parameter about fields of workload
         if (args[argindex].compareTo("TPC_DS") == 0) {
-          props.setProperty(WORKLOAD_PROPERTY,"TPCWorkload");
+          props.setProperty(WORKLOAD_PROPERTY, "com.yahoo.ycsb.workloads.TPCWorkload");
           props.setProperty(THREAD_COUNT_PROPERTY, "6"); //(YYB) 24 tables, 6 threads
         }
         argindex++;
@@ -1033,8 +1036,7 @@ public final class Client {
           System.out.println("Missing argument value for -SCALE.");
           System.exit(0);
         }
-        int dataScale = Integer.parseInt(args[argindex]);
-        props.setProperty(DATA_SCALE_PROPERTY,dataScale);
+        props.setProperty(DATA_SCALE_PROPERTY, args[argindex]);
         argindex++;
       } else if (args[argindex].compareTo("-target") == 0) {
         argindex++;

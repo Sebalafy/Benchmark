@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<checkstyle version="6.2">
+<file name="/home/sebalafy/benchmark/Benchmark/maprjsondb/src/main/java/com/yahoo/ycsb/db/mapr/ValueByteIterator.java">
+</file>
+<file name="/home/sebalafy/benchmark/Benchmark/maprjsondb/src/main/java/com/yahoo/ycsb/db/mapr/package-info.java">
+</file>
+<file name="/home/sebalafy/benchmark/Benchmark/maprjsondb/src/main/java/com/yahoo/ycsb/db/mapr/MapRJSONDBClient.java">
+</file>
+</checkstyle>

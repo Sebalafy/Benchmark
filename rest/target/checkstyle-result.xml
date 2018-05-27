@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<checkstyle version="6.2">
+<file name="/home/sebalafy/benchmark/Benchmark/rest/src/main/java/com/yahoo/ycsb/webservice/rest/package-info.java">
+</file>
+<file name="/home/sebalafy/benchmark/Benchmark/rest/src/main/java/com/yahoo/ycsb/webservice/rest/RestClient.java">
+</file>
+</checkstyle>

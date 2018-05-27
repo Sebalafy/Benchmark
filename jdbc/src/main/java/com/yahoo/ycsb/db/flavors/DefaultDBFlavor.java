@@ -20,41 +20,40 @@ import com.yahoo.ycsb.db.JdbcDBClient;
 import com.yahoo.ycsb.db.StatementType;
 import java.util.HashMap;
 
-protected static HashMap<String,String> tableAndPK = new HashMap<String,String>(){
-    {
-      tableAndPK.put("call_center" , "cc_call_center_id");
-      tableAndPK.put("household_demographics", "hd_demo_sk");
-      tableAndPK.put("store_sales", "ss_sold_date_sk");
-      tableAndPK.put("catalog_page", "cp_catalog_page_sk");
-      tableAndPK.put("income_band", "ib_income_band_sk");
-      tableAndPK.put("time_dim", "t_time_sk");
-      tableAndPK.put("catalog_returns", "cr_returned_date_sk");
-      tableAndPK.put("inventory", "inv_date_sk");
-      tableAndPK.put("warehouse", "w_warehouse_sk");
-      tableAndPK.put("catalog_sales", "cs_sold_date_sk");
-      tableAndPK.put("item", "i_item_sk");
-      tableAndPK.put("web_page", "wp_web_page_sk");
-      tableAndPK.put("customer_address", "ca_address_sk");
-      tableAndPK.put("promotion", "p_promo_sk");
-      tableAndPK.put("web_returns", "wr_returned_date_sk");
-      tableAndPK.put("customer", "ca_address_sk");
-      tableAndPK.put("reason", "r_reason_sk");
-      tableAndPK.put("web_sales", "ws_sold_date_sk");
-      tableAndPK.put("customer_demographics", "cd_demo_sk");
-      tableAndPK.put("ship_mode", "sm_ship_mode_sk");
-      tableAndPK.put("web_site", "web_site_sk");
-      tableAndPK.put("date_dim", "d_date_sk");
-      tableAndPK.put("store", "s_store_sk");
-      tableAndPK.put("store_returns", "sr_returned_date_sk");
-    }
-  };
-
 /**
  * A default flavor for relational databases.
  */
 public class DefaultDBFlavor extends DBFlavor {
+
+  protected static HashMap<String, String> tableAndPK = new HashMap<String, String>();
+
   public DefaultDBFlavor() {
     super(DBName.DEFAULT);
+    tableAndPK.put("usertable", "YCSB_KEY");
+    tableAndPK.put("call_center", "cc_call_center_sk");
+    tableAndPK.put("household_demographics", "hd_demo_sk");
+    tableAndPK.put("store_sales", "ss_sold_date_sk");
+    tableAndPK.put("catalog_page", "cp_catalog_page_sk");
+    tableAndPK.put("income_band", "ib_income_band_sk");
+    tableAndPK.put("time_dim", "t_time_sk");
+    tableAndPK.put("catalog_returns", "cr_returned_date_sk");
+    tableAndPK.put("inventory", "inv_date_sk");
+    tableAndPK.put("warehouse", "w_warehouse_sk");
+    tableAndPK.put("catalog_sales", "cs_sold_date_sk");
+    tableAndPK.put("item", "i_item_sk");
+    tableAndPK.put("web_page", "wp_web_page_sk");
+    tableAndPK.put("customer_address", "ca_address_sk");
+    tableAndPK.put("promotion", "p_promo_sk");
+    tableAndPK.put("web_returns", "wr_returned_date_sk");
+    tableAndPK.put("customer", "c_customer_sk");
+    tableAndPK.put("reason", "r_reason_sk");
+    tableAndPK.put("web_sales", "ws_sold_date_sk");
+    tableAndPK.put("customer_demographics", "cd_demo_sk");
+    tableAndPK.put("ship_mode", "sm_ship_mode_sk");
+    tableAndPK.put("web_site", "web_site_sk");
+    tableAndPK.put("date_dim", "d_date_sk");
+    tableAndPK.put("store", "s_store_sk");
+    tableAndPK.put("store_returns", "sr_returned_date_sk");
   }
   public DefaultDBFlavor(DBName dbName) {
     super(dbName);

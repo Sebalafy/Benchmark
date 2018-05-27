@@ -1,0 +1,3 @@
+/home/sebalafy/benchmark/Benchmark/solr6/src/test/java/com/yahoo/ycsb/db/solr6/SolrClientTest.java
+/home/sebalafy/benchmark/Benchmark/solr6/src/test/java/com/yahoo/ycsb/db/solr6/SolrClientCloudTest.java
+/home/sebalafy/benchmark/Benchmark/solr6/src/test/java/com/yahoo/ycsb/db/solr6/SolrClientBaseTest.java

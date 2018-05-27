@@ -1,0 +1,4 @@
+/home/sebalafy/benchmark/Benchmark/infinispan/src/main/java/com/yahoo/ycsb/db/InfinispanClient.java
+/home/sebalafy/benchmark/Benchmark/infinispan/src/main/java/com/yahoo/ycsb/db/package-info.java
+/home/sebalafy/benchmark/Benchmark/infinispan/src/main/java/com/yahoo/ycsb/db/InfinispanRemoteClient.java
+/home/sebalafy/benchmark/Benchmark/infinispan/src/main/java/com/yahoo/ycsb/db/RemoteCacheManagerHolder.java
