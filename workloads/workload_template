@@ -109,8 +109,14 @@ hotspotopnfraction=0.8
 # The name of the database table to run queries against
 table=usertable
 
-# The field of worklaod
+# The type of worklaod
 fieldofworkload=TPC_DS
+
+# The query index of workload TPC-DS
+queryindex=3
+
+# The scale of data TPC-DS
+datascale=1
 
 # The column family of fields (required by some databases)
 #columnfamily=

@@ -132,4 +132,8 @@ public abstract class DB {
    * @return The result of the operation.
    */
   public abstract Status delete(String table, String key);
+
+  public Status execScriptFile(DB db, String sqlFilePath) {
+    return Status.OK;
+  }
 }

@@ -598,11 +598,6 @@ public final class Client {
   public static final String LABEL_PROPERTY = "label";
 
   /**
-   * Set scale of the data in TPC-DS.
-   */
-  public static final String DATA_SCALE_PROPERTY = "1";
-
-  /**
    * An optional thread used to track progress and measure JVM stats.
    */
   private static StatusThread statusthread = null;
@@ -769,6 +764,7 @@ public final class Client {
     System.err.println("Starting test.");
     final CountDownLatch completeLatch = new CountDownLatch(threadcount);
 
+    //For threads, set 1)dotracsaction(load/run) 2)totalOpcount 3)ClientThreads(db,opcount, and ClientThread)
     final List<ClientThread> clients = initDb(dbname, props, threadcount, targetperthreadperms,
         workload, tracer, completeLatch);
 
@@ -857,7 +853,6 @@ public final class Client {
       e.printStackTrace();
       System.exit(-1);
     }
-
     System.exit(0);
   }
 
@@ -871,7 +866,13 @@ public final class Client {
     try (final TraceScope span = tracer.newScope(CLIENT_INIT_SPAN)) {
       int opcount;
       if (dotransactions) {
-        opcount = Integer.parseInt(props.getProperty(OPERATION_COUNT_PROPERTY, "0"));
+        //YYB business query
+        if (props.getProperty(WORKLOAD_PROPERTY).compareTo("workload") != 0) {
+          // all threads run the same query and threadcount == timesofquery
+          opcount = Integer.parseInt(props.getProperty(THREAD_COUNT_PROPERTY, "0"));
+        } else {
+          opcount = Integer.parseInt(props.getProperty(OPERATION_COUNT_PROPERTY, "0"));
+        }
       } else {
         if (props.getProperty(WORKLOAD_PROPERTY).compareTo("workload") == 0) {
           if (props.containsKey(INSERT_COUNT_PROPERTY)) {
@@ -900,7 +901,7 @@ public final class Client {
         if (threadid < opcount % threadcount) {
           ++threadopcount;
         }
-
+        //new CLientThread: 1)init db 2)workload.initthread 3)workload.dotansaction
         ClientThread t = new ClientThread(db, dotransactions, workload, props, threadopcount, targetperthreadperms,
             completeLatch);
         t.setThreadId(threadid);
@@ -1029,15 +1030,6 @@ public final class Client {
           props.setProperty(THREAD_COUNT_PROPERTY, "6"); //(YYB) 24 tables, 6 threads
         }
         argindex++;
-      } else if (args[argindex].compareTo("-SCALE") == 0){
-        argindex++;
-        if (argindex >= args.length) {
-          usageMessage();
-          System.out.println("Missing argument value for -SCALE.");
-          System.exit(0);
-        }
-        props.setProperty(DATA_SCALE_PROPERTY, args[argindex]);
-        argindex++;
       } else if (args[argindex].compareTo("-target") == 0) {
         argindex++;
         if (argindex >= args.length) {
@@ -1081,7 +1073,7 @@ public final class Client {
           usageMessage();
           System.out.println("Missing argument value for -P.");
           System.exit(0);
-        }
+        } 
         String propfile = args[argindex];
         argindex++;
 
@@ -1097,10 +1089,9 @@ public final class Client {
         //Issue #5 - remove call to stringPropertyNames to make compilable under Java 1.5
         for (Enumeration e = myfileprops.propertyNames(); e.hasMoreElements();) {
           String prop = (String) e.nextElement();
-
           fileprops.setProperty(prop, myfileprops.getProperty(prop));
         }
-
+      //YYB choose a type of query in transaction phase 
       } else if (args[argindex].compareTo("-p") == 0) {
         argindex++;
         if (argindex >= args.length) {
@@ -1114,7 +1105,6 @@ public final class Client {
           System.out.println("Argument '-p' expected to be in key=value format (e.g., -p operationcount=99999)");
           System.exit(0);
         }
-
         String name = args[argindex].substring(0, eq);
         String value = args[argindex].substring(eq + 1);
         props.put(name, value);

@@ -28,6 +28,20 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import com.yahoo.ycsb.db.flavors.DBFlavor;
 
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+ 
 /**
  * A class that wraps a JDBC compliant database to allow it to be interfaced
  * with YCSB. This class extends {@link DB} and implements the database
@@ -95,6 +109,187 @@ public class JdbcDBClient extends DB {
   /** DB flavor defines DB-specific syntax and behavior for the
    * particular database. Current database flavors are: {default, phoenix} */
   private DBFlavor dbFlavor;
+
+  /**
+   * Execute mysql script.
+   */
+  public Status execScriptFile(DB db, String sqlFilePath) {
+    String sql = getText(sqlFilePath);
+    List<String> sqlarr = getSql(sql);
+    for(int i=0; i<10; i++){
+      System.out.println(i+":"+sqlarr.get(i));
+    }
+    try{
+      execute(getConn(db), sqlarr);
+    }catch(Exception e){
+      e.printStackTrace();
+      return Status.ERROR;
+    }
+    return Status.OK;
+  }
+
+  private static Connection getConn(DB db) {
+    Properties props = db.getProperties();
+    String urls = props.getProperty(CONNECTION_URL, DEFAULT_PROP);
+    String user = props.getProperty(CONNECTION_USER, DEFAULT_PROP);
+    String passwd = props.getProperty(CONNECTION_PASSWD, DEFAULT_PROP);
+    String driver = props.getProperty(DRIVER_CLASS);
+    Connection conn = null;
+    try {
+      Class.forName(driver);
+      conn = (Connection) DriverManager.getConnection(urls, user, passwd);
+    } catch (ClassNotFoundException e) {
+      e.printStackTrace();
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+    return conn;
+  }
+
+  public static void execute(Connection conn, List<String> sqlFile) throws Exception {  
+    Statement stmt = null;  
+    stmt = conn.createStatement();  
+    for (String sql : sqlFile) {  
+      sql = sql.trim();
+      if(sql != null && !sql.equals("")) {
+        stmt.addBatch(sql);
+      }
+    }
+    int[] rows = stmt.executeBatch();  
+    System.out.println("Row count:" + Arrays.toString(rows));  
+    conn.close();
+  }
+
+  public static String getText(String path){
+    File file = new File(path);
+    if(!file.exists()||file.isDirectory()){
+      return null;
+    }
+    StringBuilder sb = new StringBuilder();
+    try {
+      FileInputStream fis = new FileInputStream(path);
+      InputStreamReader isr = new InputStreamReader(fis, "UTF-8");
+      BufferedReader br = new BufferedReader(isr);
+      String temp = null;
+      temp = br.readLine();
+      while(temp!=null) {
+        if(temp.length()>=2){
+          String str1 = temp.substring(0, 1);
+          String str2 = temp.substring(0, 2);
+          if(str1.equals("#")||str2.equals("--")||str2.equals("/*")||str2.equals("//")){
+            temp = br.readLine();
+            continue;
+          }
+          sb.append(temp+"\r\n");
+        }
+        temp = br.readLine();
+      }
+      br.close();
+    } catch(Exception e){
+      e.printStackTrace();
+    }
+    return sb.toString();
+  }
+
+  public static List<String> getSql(String sql){
+    String s = sql;
+    s = s.replaceAll("\r\n", "\r");
+    s = s.replaceAll("\r", "\n");
+    List<String> ret = new ArrayList<String>();
+    String[] sqlarry = s.split(";");
+    sqlarry = filter(sqlarry);
+    ret = Arrays.asList(sqlarry);
+    return ret;
+  }
+
+  public static String[] filter(String[] ss){
+    List<String> strs = new ArrayList<String>();
+    for(String s : ss){
+      if(s!=null&&!s.equals("")){
+        strs.add(s);
+      }
+    }
+    String[] result = new String[strs.size()];
+    for(int i=0; i<strs.size(); i++){
+      result[i] = strs.get(i).toString();
+    }
+    return result;
+  }
+
+
+  /**
+  public static void execSqlFileByMysql(String sqlFilePath) throws Exception{  
+    Exception error = null;  
+    String urls = props.getProperty(CONNECTION_URL, DEFAULT_PROP);
+    String user = props.getProperty(CONNECTION_USER, DEFAULT_PROP);
+    String passwd = props.getProperty(CONNECTION_PASSWD, DEFAULT_PROP);
+    String driver = props.getProperty(DRIVER_CLASS);
+    Connection conn = null;
+    try {  
+      Class.forName(driver);
+      conn = DriverManager.getConnection(url, user, passwd);
+      ScriptRunner runner = new ScriptRunner(conn);
+      runner.setAutoCommit(true);
+      runner.setFullLineDelimiter(false);
+      runner.setDelimiter(";");
+      runner.setSendFullScript(false);  
+      runner.setStopOnError(false);  
+    //runner.setLogWriter(null); 
+      runner.runScript(new InputStreamReader(new FileInputStream(sqlFilePath), "utf-8"));  
+      close(conn);  
+    } catch (Exception e) {  
+      LOG.error("Failure....", e);  
+      error = e;  
+    }finally{  
+      close(conn);  
+    }  
+    if(error != null){  
+      throw error;  
+    }  
+  }
+
+  
+  public static void execSqlFileBySqlserver(String ip, String port, String userName, String pwd, String sqlFilePath, String dbName) throws Exception{  
+    String driver = "net.sourceforge.jtds.jdbc.Driver";  
+    String url = "jdbc:jtds:sqlserver://"+ip+":"+port;           
+    Exception error = null;  
+    Connection conn = null;  
+    try {  
+      replaceAndCreate(f1, f2, oldDbName, newDbName);  
+      Class.forName(driver);  
+      conn = DriverManager.getConnection(url, userName, pwd);  
+      ScriptRunner runner = new ScriptRunner(conn);  
+      runner.setAutoCommit(true);
+      runner.setFullLineDelimiter(true);  
+      runner.setDelimiter("GO");  
+      runner.setSendFullScript(false);  
+      runner.setStopOnError(false);  
+    //runner.setLogWriter(null);  
+      runner.runScript(new InputStreamReader(new FileInputStream(sqlFilePath), "utf8"));   
+    } catch (Exception e) {  
+      LOG.error("Failure....", e);  
+      error = e;  
+    }finally{  
+      close(conn);   
+      deleteFile(f2);  
+    }  
+    if(error != null){  
+      throw error;  
+    }
+  }
+  .**/
+
+  private static void close(Connection conn){
+    try {
+      if(conn != null){
+        conn.close();
+      }
+    } catch (Exception e) {
+      if(conn != null){
+        conn = null;
+      }
+    }
+  }
 
   /**
    * Ordered field information for insert and update statements.

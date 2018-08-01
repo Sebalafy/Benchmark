@@ -17,11 +17,14 @@ public class TPCWorkload extends CoreWorkload {
   /**
    * The scale of data. Unit: GB.
    */
-  public static final String DATA_SCALE_PROPERTY = "1";
+  public static final String DATA_SCALE_PROPERTY = "datascale";
   public static final String DATA_SCALE_PROPERTY_DEFAULT = "1";
 
   public static final String DATA_DIR_PROPERTY = "./dataGen/";
   public static final String DATA_DIR_PROPERTY_DEFAULT = "./dataGen/";
+  //the same variable in the Client.java
+  public static final String QUERY_INDEX = "queryindex";
+  public static final String QUERY_INDEX_DEFAULT = "3";
 
   protected NumberGenerator filesequence;
   protected HashMap<String, String> fieldProperties = new HashMap<String, String>();
@@ -30,9 +33,13 @@ public class TPCWorkload extends CoreWorkload {
   protected String dataDir;
   protected ArrayList<String> fileName;
   protected ArrayList<File> fileList;
+  protected String queryindex;
 
   @Override
   public void init(Properties p) throws WorkloadException {
+    if (p.getProperty(QUERY_INDEX).compareTo("0") != 0) {
+      queryindex = p.getProperty(QUERY_INDEX);
+    }
     //Genarate data with TPC-DS tools
     scale = p.getProperty(DATA_SCALE_PROPERTY, DATA_SCALE_PROPERTY_DEFAULT);
     dataDir = p.getProperty(DATA_DIR_PROPERTY, DATA_DIR_PROPERTY_DEFAULT);
@@ -203,6 +210,20 @@ public class TPCWorkload extends CoreWorkload {
     } catch (IOException e) {
       e.printStackTrace();
     }
+  }
+
+  //YYB: Execute sql script for business workload
+  @Override
+  public boolean doTransaction(DB db, Object threadstate) {
+    String operation = operationchooser.nextString();
+    String sqlFilePath = null;
+    if(operation == null) {
+      return false;
+    }
+    sqlFilePath = "./business_workload/query"+queryindex+".sql";
+    System.out.println("\n"+sqlFilePath+"\n");
+    db.execScriptFile(db, sqlFilePath);
+    return true;
   }
 
 }
